@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, Plus, LogOut, User, Trophy, Zap } from 'lucide-react';
+import { Sparkles, Plus, LogOut, User, Trophy, Zap, Target, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,24 +11,35 @@ export default function Header() {
   const navigate = useNavigate();
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [userXp, setUserXp] = useState<number | null>(null);
+  const [currentStreak, setCurrentStreak] = useState<number>(0);
 
   useEffect(() => {
     if (user) {
-      fetchUserXp();
+      fetchUserStats();
     }
   }, [user]);
 
-  const fetchUserXp = async () => {
+  const fetchUserStats = async () => {
     if (!user) return;
     
-    const { data } = await supabase
-      .from('profiles')
-      .select('total_xp, username')
-      .eq('id', user.id)
-      .maybeSingle();
+    const [profileResult, streakResult] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('total_xp, username')
+        .eq('id', user.id)
+        .maybeSingle(),
+      supabase
+        .from('user_streaks')
+        .select('current_streak')
+        .eq('user_id', user.id)
+        .maybeSingle()
+    ]);
     
-    if (data) {
-      setUserXp(data.total_xp);
+    if (profileResult.data) {
+      setUserXp(profileResult.data.total_xp);
+    }
+    if (streakResult.data) {
+      setCurrentStreak(streakResult.data.current_streak);
     }
   };
 
@@ -65,7 +76,14 @@ export default function Header() {
             <span className="text-lg font-semibold tracking-tight">PromptDaily</span>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {/* Challenges Link */}
+            <Link to="/challenges">
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+                <Target className="w-4 h-4" />
+              </Button>
+            </Link>
+
             {/* Leaderboard Link */}
             <Link to="/leaderboard">
               <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
@@ -78,17 +96,27 @@ export default function Header() {
               className="gap-2"
             >
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Submit Prompt</span>
+              <span className="hidden sm:inline">Submit</span>
             </Button>
 
             {user ? (
               <div className="flex items-center gap-2">
+                {/* Streak indicator */}
+                {currentStreak > 0 && (
+                  <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md bg-orange-500/10 text-orange-500 text-sm font-medium">
+                    <Flame className="w-3.5 h-3.5" />
+                    {currentStreak}
+                  </div>
+                )}
+                
+                {/* XP indicator */}
                 {userXp !== null && (
                   <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md bg-upvote/10 text-upvote text-sm font-medium">
                     <Zap className="w-3.5 h-3.5" />
                     {userXp}
                   </div>
                 )}
+                
                 <button 
                   onClick={handleProfileClick}
                   className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
