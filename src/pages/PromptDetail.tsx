@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import ModelTag from '@/components/ModelTag';
 import UpvoteButton from '@/components/UpvoteButton';
 import CommentSection from '@/components/CommentSection';
+import PromptResultsSection from '@/components/PromptResultsSection';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -96,8 +97,8 @@ export default function PromptDetail() {
     if (!prompt) return;
     
     try {
-      await copyToClipboard(prompt.prompt_text);
-      toast.success('Copied to clipboard!');
+      await copyToClipboard(prompt.prompt_text, prompt.id, user?.id);
+      toast.success('Copied to clipboard! Try it and share your result.');
     } catch {
       toast.error('Failed to copy');
     }
@@ -151,10 +152,13 @@ export default function PromptDetail() {
             
             <div className="flex items-center gap-3 flex-wrap text-sm">
               <ModelTag model={prompt.model} />
-              <div className="flex items-center gap-1.5 text-muted-foreground">
+              <Link 
+                to={prompt.profiles?.username ? `/profile/${prompt.profiles.username}` : '#'}
+                className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
+              >
                 <User className="w-4 h-4" />
                 <span>{prompt.profiles?.username || 'Anonymous'}</span>
-              </div>
+              </Link>
               <span className="text-muted-foreground">
                 {formatTimeAgo(prompt.created_at)}
               </span>
@@ -198,6 +202,11 @@ export default function PromptDetail() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Community Results */}
+        <div className="border-t border-border pt-8 mb-12">
+          <PromptResultsSection promptId={prompt.id} />
         </div>
 
         {/* Comments */}
