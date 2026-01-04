@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface SubmitPromptModalProps {
   open: boolean;
@@ -16,72 +16,75 @@ interface SubmitPromptModalProps {
 }
 
 const MODEL_OPTIONS = [
-  'GPT-4',
-  'GPT-4o',
-  'GPT-3.5',
-  'Claude 3.5 Sonnet',
-  'Claude 3 Opus',
-  'Claude 3 Haiku',
-  'Gemini Pro',
-  'Gemini Ultra',
-  'Llama 3',
-  'Mistral',
-  'Other'
+  "GPT-4",
+  "GPT-4o",
+  "GPT-3.5",
+  "GPT-5",
+  "Claude 3.5 Sonnet",
+  "Claude 3 Opus",
+  "Claude 3 Haiku",
+  "Gemini 3 Pro",
+  "Gemini 3 Flash",
+  "Gemini 3 Deep Think",
+  "Nano Banana",
+  "Llama 3",
+  "Mistral",
+  "Other",
 ];
 
 export default function SubmitPromptModal({ open, onOpenChange }: SubmitPromptModalProps) {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [title, setTitle] = useState('');
-  const [promptText, setPromptText] = useState('');
-  const [model, setModel] = useState('');
-  const [expectedOutput, setExpectedOutput] = useState('');
+  const [title, setTitle] = useState("");
+  const [promptText, setPromptText] = useState("");
+  const [model, setModel] = useState("");
+  const [expectedOutput, setExpectedOutput] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!user) {
-      toast.error('Please sign in to submit a prompt');
+      toast.error("Please sign in to submit a prompt");
       return;
     }
 
     if (!title.trim() || !promptText.trim() || !model) {
-      toast.error('Please fill in all required fields');
+      toast.error("Please fill in all required fields");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from('prompts').insert({
+      const { error } = await supabase.from("prompts").insert({
         title: title.trim(),
         prompt_text: promptText.trim(),
         model,
         expected_output: expectedOutput.trim() || null,
-        author_id: user.id
+        author_id: user.id,
       });
 
       if (error) throw error;
 
-      toast.success('Prompt submitted successfully!');
+      toast.success("Prompt submitted successfully!");
       onOpenChange(false);
       resetForm();
-      
+
       // Refresh the page to show the new prompt
       window.location.reload();
     } catch (error) {
-      console.error('Submit error:', error);
-      toast.error('Failed to submit prompt');
+      console.error("Submit error:", error);
+      toast.error("Failed to submit prompt");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const resetForm = () => {
-    setTitle('');
-    setPromptText('');
-    setModel('');
-    setExpectedOutput('');
+    setTitle("");
+    setPromptText("");
+    setModel("");
+    setExpectedOutput("");
   };
 
   return (
@@ -123,7 +126,9 @@ export default function SubmitPromptModal({ open, onOpenChange }: SubmitPromptMo
               </SelectTrigger>
               <SelectContent>
                 {MODEL_OPTIONS.map((m) => (
-                  <SelectItem key={m} value={m}>{m}</SelectItem>
+                  <SelectItem key={m} value={m}>
+                    {m}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -142,26 +147,17 @@ export default function SubmitPromptModal({ open, onOpenChange }: SubmitPromptMo
           </div>
 
           <div className="flex gap-3 pt-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              className="flex-1"
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="flex-1"
-            >
+            <Button type="submit" disabled={isSubmitting} className="flex-1">
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Submitting...
                 </>
               ) : (
-                'Submit Prompt'
+                "Submit Prompt"
               )}
             </Button>
           </div>
