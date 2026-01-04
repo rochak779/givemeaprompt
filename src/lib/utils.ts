@@ -32,8 +32,24 @@ export function formatTimeAgo(date: Date | string): string {
   return past.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-export function copyToClipboard(text: string): Promise<void> {
-  return navigator.clipboard.writeText(text);
+import { supabase } from '@/integrations/supabase/client';
+
+export async function copyToClipboard(text: string, promptId?: string, userId?: string): Promise<void> {
+  await navigator.clipboard.writeText(text);
+  
+  // Track the copy if promptId is provided
+  if (promptId) {
+    try {
+      await supabase
+        .from('prompt_copies')
+        .insert({
+          prompt_id: promptId,
+          user_id: userId || null
+        });
+    } catch (error) {
+      console.error('Error tracking copy:', error);
+    }
+  }
 }
 
 export function isWithinLast24Hours(date: Date | string): boolean {

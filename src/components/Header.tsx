@@ -1,14 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, Plus, LogOut, User } from 'lucide-react';
+import { Sparkles, Plus, LogOut, User, Trophy, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import SubmitPromptModal from './SubmitPromptModal';
 
 export default function Header() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [userXp, setUserXp] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserXp();
+    }
+  }, [user]);
+
+  const fetchUserXp = async () => {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from('profiles')
+      .select('total_xp, username')
+      .eq('id', user.id)
+      .maybeSingle();
+    
+    if (data) {
+      setUserXp(data.total_xp);
+    }
+  };
 
   const handleSubmitClick = () => {
     if (!user) {
@@ -16,6 +38,20 @@ export default function Header() {
       return;
     }
     setShowSubmitModal(true);
+  };
+
+  const handleProfileClick = async () => {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('id', user.id)
+      .maybeSingle();
+    
+    if (data?.username) {
+      navigate(`/profile/${data.username}`);
+    }
   };
 
   return (
@@ -30,6 +66,13 @@ export default function Header() {
           </Link>
 
           <div className="flex items-center gap-3">
+            {/* Leaderboard Link */}
+            <Link to="/leaderboard">
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+                <Trophy className="w-4 h-4" />
+              </Button>
+            </Link>
+
             <Button 
               onClick={handleSubmitClick}
               className="gap-2"
@@ -40,9 +83,18 @@ export default function Header() {
 
             {user ? (
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
+                {userXp !== null && (
+                  <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md bg-upvote/10 text-upvote text-sm font-medium">
+                    <Zap className="w-3.5 h-3.5" />
+                    {userXp}
+                  </div>
+                )}
+                <button 
+                  onClick={handleProfileClick}
+                  className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
+                >
                   <User className="w-4 h-4 text-muted-foreground" />
-                </div>
+                </button>
                 <Button 
                   variant="ghost" 
                   size="icon"

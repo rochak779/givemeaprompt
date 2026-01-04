@@ -1,9 +1,13 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Copy, MessageCircle } from 'lucide-react';
 import { cn, formatTimeAgo, copyToClipboard } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import ModelTag from './ModelTag';
 import UpvoteButton from './UpvoteButton';
+import EffectivenessBadge from './EffectivenessBadge';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface PromptCardProps {
@@ -19,6 +23,12 @@ interface PromptCardProps {
   rank?: number;
 }
 
+interface ResultStats {
+  averageRating: number;
+  successRate: number;
+  totalResults: number;
+}
+
 export default function PromptCard({
   id,
   title,
@@ -31,12 +41,43 @@ export default function PromptCard({
   commentCount = 0,
   rank
 }: PromptCardProps) {
+  const { user } = useAuth();
+  const [resultStats, setResultStats] = useState<ResultStats | null>(null);
+
+  useEffect(() => {
+    fetchResultStats();
+  }, [id]);
+
+  const fetchResultStats = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('prompt_results')
+        .select('rating, worked_as_expected')
+        .eq('prompt_id', id);
+
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        const avgRating = data.reduce((sum, r) => sum + r.rating, 0) / data.length;
+        const successRate = Math.round((data.filter(r => r.worked_as_expected).length / data.length) * 100);
+        
+        setResultStats({
+          averageRating: avgRating,
+          successRate,
+          totalResults: data.length
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching result stats:', error);
+    }
+  };
+
   const handleCopy = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
     try {
-      await copyToClipboard(promptText);
+      await copyToClipboard(promptText, id, user?.id);
       toast.success('Copied to clipboard!');
     } catch {
       toast.error('Failed to copy');
@@ -92,6 +133,13 @@ export default function PromptCard({
                     <MessageCircle className="w-3 h-3" />
                     {commentCount}
                   </span>
+                )}
+                {resultStats && (
+                  <EffectivenessBadge
+                    averageRating={resultStats.averageRating}
+                    successRate={resultStats.successRate}
+                    totalResults={resultStats.totalResults}
+                  />
                 )}
               </div>
             </div>

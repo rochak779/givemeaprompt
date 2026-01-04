@@ -58,21 +58,106 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           id: string
+          prompts_copied: number
+          prompts_submitted: number
+          total_xp: number
+          upvotes_received: number
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           id: string
+          prompts_copied?: number
+          prompts_submitted?: number
+          total_xp?: number
+          upvotes_received?: number
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           id?: string
+          prompts_copied?: number
+          prompts_submitted?: number
+          total_xp?: number
+          upvotes_received?: number
           username?: string | null
         }
         Relationships: []
+      }
+      prompt_copies: {
+        Row: {
+          copied_at: string
+          id: string
+          prompt_id: string
+          user_id: string | null
+        }
+        Insert: {
+          copied_at?: string
+          id?: string
+          prompt_id: string
+          user_id?: string | null
+        }
+        Update: {
+          copied_at?: string
+          id?: string
+          prompt_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_copies_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prompt_results: {
+        Row: {
+          attachments: Json | null
+          created_at: string
+          id: string
+          modifications: string | null
+          output_text: string | null
+          prompt_id: string
+          rating: number
+          user_id: string
+          worked_as_expected: boolean
+        }
+        Insert: {
+          attachments?: Json | null
+          created_at?: string
+          id?: string
+          modifications?: string | null
+          output_text?: string | null
+          prompt_id: string
+          rating: number
+          user_id: string
+          worked_as_expected?: boolean
+        }
+        Update: {
+          attachments?: Json | null
+          created_at?: string
+          id?: string
+          modifications?: string | null
+          output_text?: string | null
+          prompt_id?: string
+          rating?: number
+          user_id?: string
+          worked_as_expected?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_results_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       prompts: {
         Row: {
