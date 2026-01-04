@@ -76,8 +76,10 @@ export type Database = {
       }
       prompts: {
         Row: {
+          attachments: Json | null
           author_id: string
           created_at: string
+          custom_model_name: string | null
           expected_output: string | null
           id: string
           model: string
@@ -86,8 +88,10 @@ export type Database = {
           upvote_count: number
         }
         Insert: {
+          attachments?: Json | null
           author_id: string
           created_at?: string
+          custom_model_name?: string | null
           expected_output?: string | null
           id?: string
           model: string
@@ -96,8 +100,10 @@ export type Database = {
           upvote_count?: number
         }
         Update: {
+          attachments?: Json | null
           author_id?: string
           created_at?: string
+          custom_model_name?: string | null
           expected_output?: string | null
           id?: string
           model?: string
