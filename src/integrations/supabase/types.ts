@@ -186,6 +186,7 @@ export type Database = {
           attachments: Json | null
           created_at: string
           id: string
+          is_public: boolean
           modifications: string | null
           output_text: string | null
           prompt_id: string
@@ -197,6 +198,7 @@ export type Database = {
           attachments?: Json | null
           created_at?: string
           id?: string
+          is_public?: boolean
           modifications?: string | null
           output_text?: string | null
           prompt_id: string
@@ -208,6 +210,7 @@ export type Database = {
           attachments?: Json | null
           created_at?: string
           id?: string
+          is_public?: boolean
           modifications?: string | null
           output_text?: string | null
           prompt_id?: string
