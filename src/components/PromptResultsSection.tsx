@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Star, Check, X, User, Paperclip } from 'lucide-react';
+import { Star, Check, X, User, Paperclip, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -21,6 +21,78 @@ interface PromptResult {
 
 interface PromptResultsSectionProps {
   promptId: string;
+}
+
+// Helper component to handle signed URL generation for attachments
+function AttachmentLinks({ attachments }: { attachments: string[] }) {
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const generateSignedUrls = async () => {
+      const urls: Record<string, string> = {};
+      
+      for (const path of attachments.slice(0, 3)) {
+        // Check if it's already a full URL (legacy data) or just a path
+        if (path.startsWith('http')) {
+          urls[path] = path;
+        } else {
+          const { data } = await supabase.storage
+            .from('prompt-attachments')
+            .createSignedUrl(path, 3600); // 1 hour expiry
+          
+          if (data?.signedUrl) {
+            urls[path] = data.signedUrl;
+          }
+        }
+      }
+      
+      setSignedUrls(urls);
+      setLoading(false);
+    };
+
+    generateSignedUrls();
+  }, [attachments]);
+
+  if (loading) {
+    return (
+      <div className="mt-3 flex items-center gap-2">
+        <Paperclip className="w-4 h-4 text-muted-foreground" />
+        <span className="text-sm text-muted-foreground">Loading attachments...</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 flex items-center gap-2">
+      <Paperclip className="w-4 h-4 text-muted-foreground" />
+      <span className="text-sm text-muted-foreground">
+        {attachments.length} attachment{attachments.length > 1 ? 's' : ''}
+      </span>
+      <div className="flex gap-2">
+        {attachments.slice(0, 3).map((path, i) => {
+          const url = signedUrls[path];
+          return url ? (
+            <a
+              key={i}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs text-primary underline hover:no-underline"
+            >
+              <ExternalLink className="w-3 h-3" />
+              View
+            </a>
+          ) : null;
+        })}
+        {attachments.length > 3 && (
+          <span className="text-xs text-muted-foreground">
+            +{attachments.length - 3} more
+          </span>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function PromptResultsSection({ promptId }: PromptResultsSectionProps) {
@@ -212,30 +284,7 @@ export default function PromptResultsSection({ promptId }: PromptResultsSectionP
               )}
 
               {result.attachments.length > 0 && (
-                <div className="mt-3 flex items-center gap-2">
-                  <Paperclip className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                    {result.attachments.length} attachment{result.attachments.length > 1 ? 's' : ''}
-                  </span>
-                  <div className="flex gap-2">
-                    {result.attachments.slice(0, 3).map((url, i) => (
-                      <a
-                        key={i}
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-primary underline hover:no-underline"
-                      >
-                        View
-                      </a>
-                    ))}
-                    {result.attachments.length > 3 && (
-                      <span className="text-xs text-muted-foreground">
-                        +{result.attachments.length - 3} more
-                      </span>
-                    )}
-                  </div>
-                </div>
+                <AttachmentLinks attachments={result.attachments} />
               )}
             </div>
           ))}

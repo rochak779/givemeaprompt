@@ -105,7 +105,7 @@ export default function SubmitPromptModal({ open, onOpenChange }: SubmitPromptMo
   };
 
   const uploadAttachments = async (): Promise<string[]> => {
-    const uploadedUrls: string[] = [];
+    const uploadedPaths: string[] = [];
     
     for (const attachment of attachments) {
       const fileExt = attachment.file.name.split(".").pop();
@@ -117,14 +117,11 @@ export default function SubmitPromptModal({ open, onOpenChange }: SubmitPromptMo
       
       if (error) throw error;
       
-      const { data: urlData } = supabase.storage
-        .from("prompt-attachments")
-        .getPublicUrl(fileName);
-      
-      uploadedUrls.push(urlData.publicUrl);
+      // Store the path instead of public URL - signed URLs will be generated when viewing
+      uploadedPaths.push(fileName);
     }
     
-    return uploadedUrls;
+    return uploadedPaths;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

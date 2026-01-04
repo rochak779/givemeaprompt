@@ -49,6 +49,7 @@ export default function SubmitResultModal({
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [workedAsExpected, setWorkedAsExpected] = useState(true);
+  const [isPublic, setIsPublic] = useState(false);
   const [outputText, setOutputText] = useState('');
   const [modifications, setModifications] = useState('');
   const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
@@ -101,7 +102,7 @@ export default function SubmitResultModal({
   };
 
   const uploadAttachments = async (): Promise<string[]> => {
-    const uploadedUrls: string[] = [];
+    const uploadedPaths: string[] = [];
 
     for (const attachment of attachments) {
       const fileExt = attachment.file.name.split('.').pop();
@@ -116,14 +117,11 @@ export default function SubmitResultModal({
         throw error;
       }
 
-      const { data: urlData } = supabase.storage
-        .from('prompt-attachments')
-        .getPublicUrl(fileName);
-
-      uploadedUrls.push(urlData.publicUrl);
+      // Store the path instead of public URL - signed URLs will be generated when viewing
+      uploadedPaths.push(fileName);
     }
 
-    return uploadedUrls;
+    return uploadedPaths;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -154,6 +152,7 @@ export default function SubmitResultModal({
           user_id: user.id,
           rating,
           worked_as_expected: workedAsExpected,
+          is_public: isPublic,
           output_text: outputText || null,
           modifications: modifications || null,
           attachments: attachmentUrls
@@ -177,6 +176,7 @@ export default function SubmitResultModal({
     setRating(0);
     setHoverRating(0);
     setWorkedAsExpected(true);
+    setIsPublic(false);
     setOutputText('');
     setModifications('');
     attachments.forEach(a => a.preview && URL.revokeObjectURL(a.preview));
@@ -226,6 +226,23 @@ export default function SubmitResultModal({
               id="worked-toggle"
               checked={workedAsExpected}
               onCheckedChange={setWorkedAsExpected}
+            />
+          </div>
+
+          {/* Public Visibility Toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="public-toggle" className="cursor-pointer">
+                Share publicly
+              </Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Allow everyone to see your result
+              </p>
+            </div>
+            <Switch
+              id="public-toggle"
+              checked={isPublic}
+              onCheckedChange={setIsPublic}
             />
           </div>
 
