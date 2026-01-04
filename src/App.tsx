@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import PromptDetail from "./pages/PromptDetail";
 import Profile from "./pages/Profile";
 import Leaderboard from "./pages/Leaderboard";
+import Challenges from "./pages/Challenges";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/prompt/:id" element={<PromptDetail />} />
             <Route path="/profile/:username" element={<Profile />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/challenges" element={<Challenges />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
