@@ -73,7 +73,7 @@ export default function Header() {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center group-hover:scale-105 transition-transform">
               <Sparkles className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="text-lg font-semibold tracking-tight">PromptDaily</span>
+            <span className="text-lg font-semibold tracking-tight">Give Me A Prompt</span>
           </Link>
 
           <div className="flex items-center gap-2">
