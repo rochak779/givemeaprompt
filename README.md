@@ -1,40 +1,26 @@
-# Give Me a Prompt 🚀
+# Give Me a Prompt
 
-**Give Me a Prompt** is a community-driven platform for discovering, sharing, and upvoting high-quality AI prompts — inspired by Product Hunt, but built specifically for prompts.
+**A Product Hunt for AI prompts: discover, share and upvote prompts that actually work, with a daily top 10.**
 
-Users can submit prompts, explore prompts shared by others, upvote their favourites, and build collections of useful prompts for different use cases like writing, coding, marketing, and more.
+[Try it →](https://givemeaprompt.lovable.app)
 
----
+![Give Me a Prompt home page with today's top prompts](docs/readme/screenshot.png)
 
-## ✨ Features
+## The problem
 
-- 📝 **Submit Prompts** – Share your best AI prompts with the community  
-- 🔍 **Discover Prompts** – Browse and search prompts by category or popularity  
-- 👍 **Upvote System** – Upvote prompts you find useful (Product Hunt–style ranking)  
-- 👤 **User Profiles** – Track submitted prompts and upvotes  
-- 🏷 **Categories & Tags** – Organize prompts by use case  
-- 📈 **Trending Prompts** – See what’s popular right now  
-- 💬 **Community-Driven** – Built by prompt creators, for prompt creators  
+Good prompts are scattered across social posts, screenshots and private notes. When you need one for a specific job, such as market research, a PRD or debugging, there's no reliable place to find prompts that other people have tested and rated.
 
----
+## What it does
 
-## 🧠 Use Cases
+- **Submit prompts** with a category and the model they were written for.
+- **Discover prompts** through today's top 10 and the full archive, with one-click copy.
+- **Upvote** the prompts that work, so the best ones rise.
+- **Challenges and a leaderboard** for prompt creators.
+- **Profiles** that track each person's submitted prompts.
 
-- AI prompt engineering  
-- Content creation  
-- Coding & debugging  
-- Marketing & SEO  
-- Design & creativity  
-- Learning and experimentation  
+<details>
+<summary><strong>Tech stack</strong></summary>
 
----
+React, TypeScript, Vite, Tailwind CSS, Supabase (Postgres, email sign-in). Built and hosted with Lovable.
 
-## 🛠 Tech Stack
-
-- **Frontend:** React 
-- **Backend:** API Routes  
-- **Database:** Supabase
-- **Auth:** Email 
-
-## Try it here - https://givemeaprompt.lovable.app
-
+</details>
