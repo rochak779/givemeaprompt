@@ -24,3 +24,7 @@ Good prompts are scattered across social posts, screenshots and private notes. W
 React, TypeScript, Vite, Tailwind CSS, Supabase (Postgres, email sign-in). Built and hosted with Lovable.
 
 </details>
+
+---
+
+Built by [Rochak Agarwal](https://www.rochakagarwal.com). More of my work is at [rochakagarwal.com](https://www.rochakagarwal.com).
